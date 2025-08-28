@@ -26,7 +26,31 @@
     }
 
 
-    
+    // Find the HTTP request method that the client tries to send
+    $requestMethod = $_SERVER['REQUEST_METHOD']; 
+
+    if ($requestMethod == 'GET') {
+
+        // If it is a GET method -> return all the pips
+        $statementPDOResponse = $conn->query('SELECT * FROM Pips');
+
+        // Get each database row as an associative array e.g. "pipId" -> "1"
+       $result = $statementPDOResponse->fetchAll(\PDO::FETCH_ASSOC);
+
+       // Format the array response to json
+       $jsonResponse = json_encode($result);
+
+       // Send back the json data to the client
+       echo $jsonResponse;
+
+       
+        
+    } elseif ($requestMethod == 'POST') {
+
+        // If it is a POST method insert new data into the database
+        echo 'This is a POST Method';
+    }
+
 
     
 
