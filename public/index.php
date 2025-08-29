@@ -20,7 +20,6 @@
     $conn = new PDO("mysql:host=$servername;dbname=Pipper", $username, $password);
     // set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "Connected successfully";
     } catch(PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
     }
@@ -32,6 +31,7 @@
     if ($requestMethod == 'GET') {
 
         // If it is a GET method -> return all the pips
+        // REMEMBER TO SORT THE DATA HERE
         $statementPDOResponse = $conn->query('SELECT * FROM Pips');
 
         // Get each database row as an associative array e.g. "pipId" -> "1"
@@ -47,11 +47,17 @@
         
     } elseif ($requestMethod == 'POST') {
 
-        // If it is a POST method insert new data into the database
-        echo 'This is a POST Method';
+        // The data is send as JSON from the client which means it cannot be read from the URL with the $_POST superglobal variable
+        $input = (array) json_decode(file_get_contents('php://input'), TRUE);
+
+        // Extract the username and piptext from the POST request
+        $username = $input['username'];
+
+        // Add a pip to the database
+        // Make a query to the DB
+        
+
+
     }
-
-
-    
 
 ?>
