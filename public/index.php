@@ -52,12 +52,14 @@
 
         // Extract the username and piptext from the POST request
         $username = $input['username'];
-
-        // Add a pip to the database
-        // Make a query to the DB
+        $pipText = $input['pipText'];
         
+        // Add a pip to the database. First prepare it to avoid SQL injection
+        $statement = $conn->prepare(('INSERT INTO Pips VALUES (default, ?, ?)'));
+        // Then fill in the values and run the query
+        $statement->execute([$pipText, $username]);
 
-
+    
     }
 
 ?>
