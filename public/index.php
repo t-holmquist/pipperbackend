@@ -30,9 +30,8 @@
 
     if ($requestMethod == 'GET') {
 
-        // If it is a GET method -> return all the pips
-        // REMEMBER TO SORT THE DATA HERE
-        $statementPDOResponse = $conn->query('SELECT * FROM Pips');
+        // If it is a GET method -> return all the pips sorted by pipId in descending order
+        $statementPDOResponse = $conn->query('SELECT * FROM Pips ORDER BY pipId desc');
 
         // Get each database row as an associative array e.g. "pipId" -> "1"
        $result = $statementPDOResponse->fetchAll(\PDO::FETCH_ASSOC);
