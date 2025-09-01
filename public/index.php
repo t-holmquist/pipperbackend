@@ -54,7 +54,7 @@
         $pipText = $input['pipText'];
         
         // Add a pip to the database. First prepare it to avoid SQL injection
-        $statement = $conn->prepare(('INSERT INTO Pips VALUES (default, ?, ?)'));
+        $statement = $conn->prepare(('INSERT INTO Pips VALUES (default, ?, ?, default)'));
         // Then fill in the values and run the query
         $statement->execute([$pipText, $username]);
 
