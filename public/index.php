@@ -31,7 +31,7 @@
     if ($requestMethod == 'GET') {
 
         // If it is a GET method -> return all the pips sorted by pipId in descending order
-        $statementPDOResponse = $conn->query('SELECT * FROM Pips ORDER BY pipId desc');
+        $statementPDOResponse = $conn->query('SELECT * FROM Pips ORDER BY created_at desc');
 
         // Get each database row as an associative array e.g. "pipId" -> "1"
        $result = $statementPDOResponse->fetchAll(\PDO::FETCH_ASSOC);
