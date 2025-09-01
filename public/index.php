@@ -59,6 +59,23 @@
         $statement->execute([$pipText, $username]);
 
     
+    } elseif ($requestMethod == 'DELETE') {
+
+        // The data is send as JSON from the client which means it cannot be read from the URL with the $_POST superglobal variable
+        $input = (array) json_decode(file_get_contents('php://input'), TRUE);
+
+        // Extract the pip id to be able to delete it
+        $pipId = $input['pipId'];
+
+        // Prepare the sql statement and delete a row with the specific id
+        $statement = $conn->prepare('DELETE FROM Pips WHERE pipId = :pipId');
+        $statement->bindParam(':pipId', $pipId, PDO::PARAM_INT);
+        $statement->execute();
+
+
+
+
+
     }
 
 ?>
