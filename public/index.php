@@ -52,11 +52,34 @@
         // Extract the username and piptext from the POST request
         $username = $input['username'];
         $pipText = $input['pipText'];
-        
-        // Add a pip to the database. First prepare it to avoid SQL injection
-        $statement = $conn->prepare(('INSERT INTO Pips VALUES (default, ?, ?, default)'));
-        // Then fill in the values and run the query
-        $statement->execute([$pipText, $username]);
+
+        // Check if username is not empty. If empty return an error the the client
+        if ($input['username'] != '' && $input['pipText'] != '') {
+
+            // Add a pip to the database. First prepare it to avoid SQL injection
+            $statement = $conn->prepare(('INSERT INTO Pips VALUES (default, ?, ?, default)'));
+            // Then fill in the values and run the query
+            $statement->execute([$pipText, $username]);
+
+            // Return the pip details to the client so that it can temporarily add it to the DOM until page reload (To improve UX)
+            // Get the id that is last inserted
+            $pipId = $conn->lastInsertId();
+
+            // Approx. current time sent to the client
+            $createdAt = date('Y-m-d H:i:s');
+
+            // Return the pip data to the client
+            $response = [
+                'id' => $pipId,
+                'pipText' => $pipText,
+                'username' => $username,
+                'created_at' => $createdAt
+            ];
+
+            echo json_encode($response);
+
+        }        
+
 
     
     } elseif ($requestMethod == 'DELETE') {
