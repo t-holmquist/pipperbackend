@@ -3,7 +3,7 @@
     // Import the env file to get password later
     require "../.env";
 
-    // Allow http requests to you PHP server
+    // Allow http requests to the PHP server
     header("Access-Control-Allow-Origin: *");
     header("Content-Type: application/json; charset=UTF-8");
     header("Access-Control-Allow-Methods: OPTIONS,GET,POST,PUT,DELETE");
@@ -30,18 +30,41 @@
 
     if ($requestMethod == 'GET') {
 
-        // If it is a GET method -> return all the pips sorted by pipId in descending order
-        $statementPDOResponse = $conn->query('SELECT * FROM Pips ORDER BY created_at desc');
+       try {
+        // Læs query-parametre: limit og offset
+        $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 10;
+        $offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
 
-        // Get each database row as an associative array e.g. "pipId" -> "1"
-       $result = $statementPDOResponse->fetchAll(\PDO::FETCH_ASSOC);
+        // Rimelige grænser/validering
+        if ($limit < 1) $limit = 1;
+        if ($limit > 100) $limit = 100; // undgå alt for store svar
+        if ($offset < 0) $offset = 0;
 
-       // Format the array response to json
-       $jsonResponse = json_encode($result);
+        // (Valgfrit) total antal rækker til metadata
+        $total = (int) $conn->query("SELECT COUNT(*) FROM Pips")->fetchColumn();
 
-       // Send back the json data to the client
-       echo $jsonResponse;
+        // Hent pagineret data – bind som ints!
+        $stmt = $conn->prepare("SELECT * FROM Pips ORDER BY created_at desc LIMIT :limit OFFSET :offset");
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        // Returnér data + pagination-info
+        echo json_encode([
+            'data' => $rows,
+            'pagination' => [
+                'limit' => $limit,
+                'offset' => $offset,
+                'total' => $total,
+                'next_offset' => ($offset + $limit < $total) ? $offset + $limit : null,
+                'prev_offset' => ($offset - $limit >= 0) ? $offset - $limit : null
+            ]
+            ]);
+        } catch(PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["error" => "Connection failed: " . $e->getMessage()]);
+        }
        
         
     } elseif ($requestMethod == 'POST') {
@@ -79,8 +102,6 @@
             echo json_encode($response);
 
         }        
-
-
     
     } elseif ($requestMethod == 'DELETE') {
 
@@ -94,10 +115,6 @@
         $statement = $conn->prepare('DELETE FROM Pips WHERE pipId = :pipId');
         $statement->bindParam(':pipId', $pipId, PDO::PARAM_INT);
         $statement->execute();
-
-
-
-
 
     }
 
